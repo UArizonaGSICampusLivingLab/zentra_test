@@ -73,17 +73,6 @@ ggplot(atm_df, aes(x = datetime, y = atmospheric_pressure.value)) +
   geom_line()  
 
 
-# we *could* combine this into one dataset
-
-full_df <- bind_rows(soil_df, atm_df)
-dim(soil_df)
-dim(atm_df)
-dim(full_df)
-
-# 60 columns is not bad, but it's bigger than it needs to be which might be a
-# concern for storage or loading once there are thousands of rows.  Datsets can
-# always be joined later by site and datetime
-
 # Apply this to multiple sensors ------------------------------------------
 
 ## Can you pass multiple sensor IDs to the download function?
@@ -115,13 +104,12 @@ readings_all <-
 # sets names of list elements
 names(readings_all) <- devices
 
-
 # if we want to combine atmospheric and soil sensors, it's quite easy, I think
 
 # collapse list of lists to list of data frames
 all_df <- 
   readings_all |> 
-  map(\(x ) list_rbind(x, names_to = "sensor_port")) |> 
+  map(\(x) list_rbind(x, names_to = "sensor_port")) |> 
   #collapse list of data frames to a single data frame
   list_rbind(names_to = "device_sn") |> 
   #same wrangling as above
