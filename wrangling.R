@@ -13,27 +13,26 @@ setZentracloudOptions(
 # Download data -----------------------------------------------------------
 
 # start with just a single device ID and a single day
-device <- "z6-20762"
 
+# This device has all 3 types of soil sensors
 readings <- getReadings(
-  device_sn = device,
+  device_sn = "z6-19484",
   start_time = "2023-10-11 12:00:00",
   end_time = "2023-10-12 12:00:00"
 )
 
-
 # Combine data from similar sensors ---------------------------------------
 
-# all the T12 sensor ports are soil probes at different locations and depths
+# all the T12 and T21 sensor ports are soil at different locations and depths
 
-#get just the elements that start with "T12"
-T12 <- readings[str_detect(names(readings), "T12")]
+#get just the elements that start with "T12" or "T21"
+soil_list <- readings[str_detect(names(readings), "^T12|^T21")]
 
 #combine all ports into one data frame
-T12_df_raw <- list_rbind(T12, names_to = "sensor_port")
+soil_raw <- list_rbind(soil_list, names_to = "sensor_port")
 
 #wrangle and clean
-T12_df <- T12_df_raw |> 
+soil_df <- soil_raw |> 
   separate_wider_delim(sensor_port, "_", names = c("sensor", "port")) |> 
   mutate(
     # remove "port" prefix because it's unecessary
@@ -44,27 +43,46 @@ T12_df <- T12_df_raw |>
   #now we no longer need timestamp and tz_offset--all info is in datetime
   select(-timestamp_utc, -tz_offset)
 
-# example plot
+# example plots
 
-ggplot(T12_df, aes(x = datetime, y = soil_temperature.value, color = port)) +
+ggplot(soil_df, aes(x = datetime, y = soil_temperature.value, color = port)) +
   geom_line()
+
+ggplot(soil_df, aes(x = datetime, y = matric_potential.value, color = port)) +
+  geom_line() #would need to figure out how to drop unused ports from plot
 
 
 # Atmospheric data --------------------------------------------------------
 
-ATM_df <- readings$`ATM-410007711_port1` |> 
+atm_list <- readings[str_detect(names(readings), "^ATM")] 
+
+atm_raw <- atm_list |> list_rbind(names_to = "sensor_port")
+atm_df <- 
+  atm_raw |> 
+  #same as above
+  separate_wider_delim(sensor_port, "_", names = c("sensor", "port")) |> 
   mutate(
-    sensor = "ATM-41000771",
-    port = 1,
+    port = str_remove(port, "port"),
     datetime = str_remove(datetime, "-07:00$") |> ymd_hms(tz = "America/Phoenix")
   ) |> 
   select(-timestamp_utc, -tz_offset)
 
 # example plot
 
-ggplot(ATM_df, aes(x = datetime, y = atmospheric_pressure.value)) +
+ggplot(atm_df, aes(x = datetime, y = atmospheric_pressure.value)) +
   geom_line()  
 
+
+# we *could* combine this into one dataset
+
+full_df <- bind_rows(soil_df, atm_df)
+dim(soil_df)
+dim(atm_df)
+dim(full_df)
+
+# 60 columns is not bad, but it's bigger than it needs to be which might be a
+# concern for storage or loading once there are thousands of rows.  Datsets can
+# always be joined later by site and datetime
 
 # Apply this to multiple sensors ------------------------------------------
 
@@ -90,3 +108,30 @@ readings_all <-
       end_time = "2023-10-12 12:00:00"
     )
   })
+
+## readings_all is now a list of lists
+# str(readings_all)
+
+# sets names of list elements
+names(readings_all) <- devices
+
+
+# if we want to combine atmospheric and soil sensors, it's quite easy, I think
+
+# collapse list of lists to list of data frames
+all_df <- 
+  readings_all |> 
+  map(\(x ) list_rbind(x, names_to = "sensor_port")) |> 
+  #collapse list of data frames to a single data frame
+  list_rbind(names_to = "device_sn") |> 
+  #same wrangling as above
+  separate_wider_delim(sensor_port, "_", names = c("sensor", "port")) |> 
+  mutate(
+    port = str_remove(port, "port"),
+    datetime = str_remove(datetime, "-07:00$") |> ymd_hms(tz = "America/Phoenix")
+  ) |> 
+  select(-timestamp_utc, -tz_offset)
+
+head(all_df)
+
+# if we want to split out the atmospheric sensors, it will be more involved.  Will need to think about data size and how much we'll really save by keeping them separate.
