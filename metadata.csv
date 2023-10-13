@@ -1,0 +1,13 @@
+device_sn,sensor,sensor_sn,port,plot,location,depth_height_m
+z6-19484,ATMOS41,ATM-410008161,1,Old Main,Tower,2.1
+z6-19484,TEROS12,T12-00125020,2,Old Main,Basin closest to Old Main,-0.15
+z6-19484,TEROS21,T21G20018890,3,Old Main,Basin closest to Old Main,-0.15
+z6-19484,TEROS12,T12-00125824,4,Old Main,Basin closest to Old Main,-0.5
+z6-19484,TEROS12,T12-00118462,5,Old Main,High ground closest to Old Main,-0.5
+z6-19484,TEROS12,T12-00118460,6,Old Main,High ground closest to Old Main,-0.15
+z6-19485,TEROS21,T21G20018873,1,Old Main,Basin closest to tower,-0.15
+z6-19485,TEROS12,T12-00123508,2,Old Main,Basin closest to tower,-0.5
+z6-19485,TEROS12,T12-00127382,3,Old Main,Basin closest to tower,-0.15
+z6-19485,TEROS12,T12-00120851,4,Old Main,High ground closest to tower,-0.5
+z6-19485,TEROS12,T12-00120852,5,Old Main,High ground closest to tower,-0.15
+z6-19485,,,6,Old Main,,
