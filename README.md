@@ -23,4 +23,8 @@ For these script to work, you'll also need to create a .Renviron file containing
 ZENTRACLOUD_TOKEN=<token>
 ```
 
+## Scripts
+
+- `wrangling.R` contains an example of downloading data from multiple sites and combining into one dataset
+- `benchmarking.R` is an attempt to figure out why downloading data takes so long.
 (replace `<token>` with your API token)

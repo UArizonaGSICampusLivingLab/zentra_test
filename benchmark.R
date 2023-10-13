@@ -1,4 +1,6 @@
 # benchmarking ------------------------------------------------------------
+# Why does downloading data take so long?  Issue opened here: https://gitlab.com/meter-group-inc/pubpackages/zentracloud/-/issues/39
+
 # install.packages('zentracloud', repos = c('https://cct-datascience.r-universe.dev', 'https://cloud.r-project.org'))
 library(zentracloud)
 library(tictoc)
