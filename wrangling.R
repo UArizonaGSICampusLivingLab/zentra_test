@@ -64,3 +64,29 @@ ATM_df <- readings$`ATM-410007711_port1` |>
 
 ggplot(ATM_df, aes(x = datetime, y = atmospheric_pressure.value)) +
   geom_line()  
+
+
+# Apply this to multiple sensors ------------------------------------------
+
+## Can you pass multiple sensor IDs to the download function?
+# readings <- getReadings(
+#   device_sn = c("z6-19484", "z6-20761"),
+#   start_time = "2023-10-11 12:00:00",
+#   end_time = "2023-10-12 12:00:00"
+# )
+
+## Nope! that doesn't work.
+
+# To download data from all the sensors into a list of lists, we could use `map()`
+
+devices <- c("z6-19484", "z6-20761", "z6-20764", "z6-20762", "z6-20763")
+
+readings_all <- 
+  # provide an "anonymous function" to map() to iterate over `devices`
+  map(devices, \(x) {
+    getReadings(
+      device_sn = x,
+      start_time = "2023-10-11 12:00:00",
+      end_time = "2023-10-12 12:00:00"
+    )
+  })
